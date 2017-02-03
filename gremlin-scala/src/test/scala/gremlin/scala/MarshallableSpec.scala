@@ -21,14 +21,19 @@ case class CCWithLabel(s: String)
 
 @label("the_label")
 case class CCWithLabelAndId(
+  @id id: Option[Int],
   s: String,
-  @id id: Int,
   l: Long,
   o: Option[String],
   seq: Seq[String],
   map: Map[String, String],
   nested: NestedClass
 ) { def randomDef = ??? }
+
+@label("with_underlying")
+case class CCWithUnderlyingVertex(
+  @underlying underlying: Option[Vertex],
+  s: String)
 
 case class NestedClass(s: String)
 
@@ -114,9 +119,9 @@ class MarshallableSpec extends WordSpec with Matchers {
         def fromCC(cc: CCWithOption) =
           FromCC(None, "CCWithOption", Map("i" -> cc.i, "s" → cc.s.getOrElse("undefined")))
 
-        def toCC(id: AnyRef, valueMap: Map[String, Any]): CCWithOption =
-          CCWithOption(i = valueMap("i").asInstanceOf[Int],
-                       s = valueMap.get("s").asInstanceOf[Option[String]])
+        def toCC(element: Element): CCWithOption = ???
+          // CCWithOption(i = valueMap("i").asInstanceOf[Int],
+          //              s = valueMap.get("s").asInstanceOf[Option[String]])
       }
 
       val v = graph.+(ccWithOptionNone)(marshaller)
@@ -125,8 +130,8 @@ class MarshallableSpec extends WordSpec with Matchers {
 
     "use @label and @id annotations" in new Fixture {
       val ccWithLabelAndId = CCWithLabelAndId(
+        id = Some(Int.MaxValue), //this might not work with other graph databases
         "some string",
-        Int.MaxValue,
         Long.MaxValue,
         Some("option type"),
         Seq("test1", "test2"),
@@ -140,7 +145,7 @@ class MarshallableSpec extends WordSpec with Matchers {
 
       val vl = graph.V(v.id).head()
       vl.label shouldBe "the_label"
-      vl.id shouldBe ccWithLabelAndId.id
+      vl.id shouldBe ccWithLabelAndId.id.get
       vl.valueMap should contain("s" → ccWithLabelAndId.s)
       vl.valueMap should contain("l" → ccWithLabelAndId.l)
       vl.valueMap should contain("o" → ccWithLabelAndId.o.get)
@@ -159,6 +164,20 @@ class MarshallableSpec extends WordSpec with Matchers {
       vl.label shouldBe cc.getClass.getSimpleName
       vl.id shouldBe cc.id.get
       vl.valueMap should contain("s" → cc.s)
+    }
+
+    "have @underlying vertex" in new Fixture {
+      val cc = CCWithUnderlyingVertex(
+        underlying = None, //not known yet, not part of graph yet
+        "some string"
+      )
+
+      val vertex = graph + cc
+      val ccFromVertex = vertex.toCC[CCWithUnderlyingVertex]
+      ccFromVertex.s shouldBe cc.s
+      ccFromVertex.underlying shouldBe 'defined
+
+      graph.V(ccFromVertex.underlying.get.id).value[String]("s").head shouldBe cc.s
     }
 
   }
