@@ -199,6 +199,11 @@ class DslSpec extends AnyWordSpec with Matchers {
     PersonSteps(TinkerFactory.createModern).notExists() shouldBe false
   }
 
+  "tail returns last element" in {
+    val result = PersonSteps(TinkerFactory.createModern).tail().toList
+    result.size shouldBe 1
+  }
+
   "allows to be cloned" in {
     val graph = TinkerFactory.createModern
     def personSteps = PersonSteps(graph)

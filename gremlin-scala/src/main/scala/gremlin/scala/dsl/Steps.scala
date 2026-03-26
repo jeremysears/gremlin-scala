@@ -82,6 +82,10 @@ class Steps[EndDomain, EndGraph, Labels <: HList](val raw: GremlinScala[EndGraph
 
   override def clone() = new Steps[EndDomain, EndGraph, Labels](raw.clone())
 
+  /** Filter to keep only the last element of the traversal. */
+  def tail(): Steps[EndDomain, EndGraph, Labels] =
+    new Steps[EndDomain, EndGraph, Labels](raw.tail)
+
   def dedup(): Steps[EndDomain, EndGraph, Labels] =
     new Steps[EndDomain, EndGraph, Labels](raw.dedup())
 
