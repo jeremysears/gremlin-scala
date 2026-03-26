@@ -161,6 +161,12 @@ class Steps[EndDomain, EndGraph, Labels <: HList](val raw: GremlinScala[EndGraph
       raw.coalesce[NewEndGraph](rawTraversals: _*))
   }
 
+  /** Unroll a collection or iterator into individual traversers. */
+  def unfold[NewEndDomain, NewEndGraph]()(
+      implicit newConverter: Converter.Aux[NewEndDomain, NewEndGraph])
+    : Steps[NewEndDomain, NewEndGraph, Labels] =
+    new Steps[NewEndDomain, NewEndGraph, Labels](raw.unfold[NewEndGraph]())
+
   /* access all gremlin-scala methods that don't modify the EndGraph type, e.g. `has` */
   /* TODO: track/use NewLabelsGraph as given by `fun` */
   def onRaw(

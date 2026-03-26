@@ -273,6 +273,15 @@ class DslSpec extends AnyWordSpec with Matchers {
     result.size should be > 0
   }
 
+  "unfold unrolls folded results" in {
+    val graph = TinkerFactory.createModern
+    // fold names into a list, then unfold back
+    val names = new Steps[String, String, HNil](
+      graph.V.values[String]("name").fold().unfold[String]()
+    )(Converter.identityConverter).toList
+    names.size shouldBe 6
+  }
+
   "coalesce returns first non-empty traversal" in {
     implicit val graph = TinkerFactory.createModern
     // marko has no "created" with name "nonexistent", so first branch is empty
