@@ -204,6 +204,11 @@ class DslSpec extends AnyWordSpec with Matchers {
     result.size shouldBe 1
   }
 
+  "limit restricts number of results" in {
+    val result = PersonSteps(TinkerFactory.createModern).limit(2).toList
+    result.size shouldBe 2
+  }
+
   "allows to be cloned" in {
     val graph = TinkerFactory.createModern
     def personSteps = PersonSteps(graph)
