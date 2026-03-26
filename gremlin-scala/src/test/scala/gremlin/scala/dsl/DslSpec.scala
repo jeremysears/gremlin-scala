@@ -229,6 +229,15 @@ class DslSpec extends AnyWordSpec with Matchers {
     result.size shouldBe 2
   }
 
+  "is filters by value equality" in {
+    val graph = TinkerFactory.createModern
+    val result = new Steps[String, String, HNil](
+      graph.V.values[String]("name"))(Converter.identityConverter)
+      .is("marko")
+      .toList
+    result shouldBe List("marko")
+  }
+
   "allows to be cloned" in {
     val graph = TinkerFactory.createModern
     def personSteps = PersonSteps(graph)

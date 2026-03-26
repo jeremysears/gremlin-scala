@@ -121,6 +121,11 @@ class Steps[EndDomain, EndGraph, Labels <: HList](val raw: GremlinScala[EndGraph
       implicit ev: EndGraph <:< Element): Steps[EndDomain, EndGraph, Labels] =
     new Steps[EndDomain, EndGraph, Labels](raw.hasLabel(label, labels: _*))
 
+  /** Filter traversers by value equality, converting the domain value to the graph type. */
+  def is(value: EndDomain): Steps[EndDomain, EndGraph, Labels] =
+    new Steps[EndDomain, EndGraph, Labels](
+      raw.is(converter.toGraph(value).asInstanceOf[AnyRef]))
+
   /* access all gremlin-scala methods that don't modify the EndGraph type, e.g. `has` */
   /* TODO: track/use NewLabelsGraph as given by `fun` */
   def onRaw(
