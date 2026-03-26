@@ -138,6 +138,10 @@ class Steps[EndDomain, EndGraph, Labels <: HList](val raw: GremlinScala[EndGraph
   def drop(): Steps[EndDomain, EndGraph, Labels] =
     new Steps[EndDomain, EndGraph, Labels](raw.drop())
 
+  /** Returns the number of loops the current traverser has gone through in a repeat step. */
+  def loops(): Steps[Integer, Integer, Labels] =
+    new Steps[Integer, Integer, Labels](raw.loops())(Converter.forInteger)
+
   /* access all gremlin-scala methods that don't modify the EndGraph type, e.g. `has` */
   /* TODO: track/use NewLabelsGraph as given by `fun` */
   def onRaw(

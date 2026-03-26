@@ -263,6 +263,16 @@ class DslSpec extends AnyWordSpec with Matchers {
     PersonSteps(graph).hasName("marko").exists() shouldBe false
   }
 
+  "loops returns loop count in repeat traversal" in {
+    implicit val graph = TinkerFactory.createModern
+    // Use repeat/until with loops to verify loops step works
+    val result = PersonSteps(graph).hasName("marko")
+      .repeat(_.onRaw(_.out("knows")))
+      .until(_.loops().is(1: Integer))
+      .toList
+    result.size should be > 0
+  }
+
   "allows to be cloned" in {
     val graph = TinkerFactory.createModern
     def personSteps = PersonSteps(graph)
