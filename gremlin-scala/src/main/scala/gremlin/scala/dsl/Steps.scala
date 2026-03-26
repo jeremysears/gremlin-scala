@@ -142,6 +142,25 @@ class Steps[EndDomain, EndGraph, Labels <: HList](val raw: GremlinScala[EndGraph
   def loops(): Steps[Integer, Integer, Labels] =
     new Steps[Integer, Integer, Labels](raw.loops())(Converter.forInteger)
 
+  /**
+    * Evaluate the provided traversals in order and return the first non-empty result.
+    * Each traversal is a function from the current Steps to a new Steps with potentially
+    * different domain/graph types.
+    */
+  def coalesce[NewEndDomain, NewEndGraph](
+      coalesceTraversals: (Steps[EndDomain, EndGraph, HNil] => Steps[NewEndDomain, NewEndGraph, _])*)(
+      implicit newConverter: Converter.Aux[NewEndDomain, NewEndGraph])
+    : Steps[NewEndDomain, NewEndGraph, Labels] = {
+    val rawTraversals = coalesceTraversals.map { coalesceTraversal =>
+      (rawTraversal: GremlinScala.Aux[EndGraph, HNil]) =>
+        coalesceTraversal(
+          new Steps[EndDomain, EndGraph, HNil](rawTraversal)
+        ).raw.asInstanceOf[GremlinScala[NewEndGraph]]
+    }
+    new Steps[NewEndDomain, NewEndGraph, Labels](
+      raw.coalesce[NewEndGraph](rawTraversals: _*))
+  }
+
   /* access all gremlin-scala methods that don't modify the EndGraph type, e.g. `has` */
   /* TODO: track/use NewLabelsGraph as given by `fun` */
   def onRaw(
