@@ -273,6 +273,18 @@ class DslSpec extends AnyWordSpec with Matchers {
     result.size should be > 0
   }
 
+  "group groups by key and value traversals" in {
+    implicit val graph = TinkerFactory.createModern
+    // group persons by name, collecting the names of software they created
+    val result: JMap[String, String] = PersonSteps(graph)
+      .group(_.name, _.created.name)
+      .head()
+    val grouped = result.asScala
+    grouped should contain key "marko"
+    grouped should contain key "josh"
+    grouped should contain key "peter"
+  }
+
   "where filters by sub-traversal" in {
     val graph = TinkerFactory.createModern
     // find persons who created ripple
@@ -365,6 +377,9 @@ object TestDomain {
       extends NodeSteps[Software, Labels](raw) {
 
     def createdBy = new PersonSteps[Labels](raw.in("created"))
+
+    def name =
+      new Steps[String, String, Labels](raw.map(_.value[String]("name")))
 
     def isRipple = new SoftwareSteps[Labels](raw.has(Key("name") -> "ripple"))
   }

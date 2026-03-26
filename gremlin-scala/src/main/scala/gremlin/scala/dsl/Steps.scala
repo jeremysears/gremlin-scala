@@ -162,6 +162,30 @@ class Steps[EndDomain, EndGraph, Labels <: HList](val raw: GremlinScala[EndGraph
   }
 
   /**
+    * Group traversal results by a key traversal and a value traversal.
+    * The keysBy traversal determines the grouping key and the valuesBy traversal
+    * determines the grouped values. Note that TinkerPop's group step with a value-by
+    * modulator collects values into lists at runtime, but the static type reflects
+    * the raw map type to match actual runtime behavior.
+    */
+  def group[KeyDomain, KeyGraph, ValueDomain, ValueGraph](
+      keysBy: Steps[EndDomain, EndGraph, HNil] => Steps[KeyDomain, KeyGraph, _],
+      valuesBy: Steps[EndDomain, EndGraph, HNil] => Steps[ValueDomain, ValueGraph, _])(
+      implicit
+      keyConverter: Converter.Aux[KeyDomain, KeyGraph],
+      valueConverter: Converter.Aux[ValueDomain, ValueGraph])
+    : Steps[JMap[KeyGraph, ValueGraph], JMap[KeyGraph, ValueGraph], Labels] = {
+    val rawKeysBy = keysBy(
+      new Steps[EndDomain, EndGraph, HNil](__[EndGraph]())).raw
+    val rawValuesBy = valuesBy(
+      new Steps[EndDomain, EndGraph, HNil](__[EndGraph]())).raw
+    new Steps[JMap[KeyGraph, ValueGraph], JMap[KeyGraph, ValueGraph], Labels](
+      raw.group(keysBy = By(rawKeysBy), valuesBy = By(rawValuesBy))
+        .asInstanceOf[GremlinScala[JMap[KeyGraph, ValueGraph]]]
+    )(Converter.identityConverter)
+  }
+
+  /**
     * Filter the current traversal by a sub-traversal.
     * Only traversers for which the sub-traversal produces at least one result are kept.
     */
