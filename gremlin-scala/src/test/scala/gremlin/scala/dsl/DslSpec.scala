@@ -209,6 +209,13 @@ class DslSpec extends AnyWordSpec with Matchers {
     result.size shouldBe 2
   }
 
+  "not filters out matching traversals" in {
+    val result = PersonSteps(TinkerFactory.createModern)
+      .not(_.created.isRipple)
+      .toList
+    result.size shouldBe 3
+  }
+
   "allows to be cloned" in {
     val graph = TinkerFactory.createModern
     def personSteps = PersonSteps(graph)

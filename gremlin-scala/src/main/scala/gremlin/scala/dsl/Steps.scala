@@ -98,6 +98,20 @@ class Steps[EndDomain, EndGraph, Labels <: HList](val raw: GremlinScala[EndGraph
   def dedup(): Steps[EndDomain, EndGraph, Labels] =
     new Steps[EndDomain, EndGraph, Labels](raw.dedup())
 
+  /**
+    * The not step filters traversers where the provided sub-traversal produces results.
+    * This is the negation of a filter traversal.
+    */
+  def not(notTraversal: Steps[EndDomain, EndGraph, HNil] => Steps[_, _, _])
+    : Steps[EndDomain, EndGraph, Labels] =
+    new Steps[EndDomain, EndGraph, Labels](
+      raw.not { rawTraversal =>
+        notTraversal(
+          new Steps[EndDomain, EndGraph, HNil](rawTraversal)
+        ).raw
+      }
+    )
+
   /* access all gremlin-scala methods that don't modify the EndGraph type, e.g. `has` */
   /* TODO: track/use NewLabelsGraph as given by `fun` */
   def onRaw(
