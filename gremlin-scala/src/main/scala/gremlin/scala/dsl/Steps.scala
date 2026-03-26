@@ -162,6 +162,20 @@ class Steps[EndDomain, EndGraph, Labels <: HList](val raw: GremlinScala[EndGraph
   }
 
   /**
+    * Filter the current traversal by a sub-traversal.
+    * Only traversers for which the sub-traversal produces at least one result are kept.
+    */
+  def where(whereTraversal: Steps[EndDomain, EndGraph, HNil] => Steps[_, _, _])
+    : Steps[EndDomain, EndGraph, Labels] =
+    new Steps[EndDomain, EndGraph, Labels](
+      raw.where { rawTraversal =>
+        whereTraversal(
+          new Steps[EndDomain, EndGraph, HNil](rawTraversal)
+        ).raw
+      }
+    )
+
+  /**
     * Merge the results of multiple traversals into a single flat result set.
     * All traversals must produce the same output type.
     */

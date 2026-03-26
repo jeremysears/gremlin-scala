@@ -273,6 +273,15 @@ class DslSpec extends AnyWordSpec with Matchers {
     result.size should be > 0
   }
 
+  "where filters by sub-traversal" in {
+    val graph = TinkerFactory.createModern
+    // find persons who created ripple
+    val result = PersonSteps(graph)
+      .where(_.created.isRipple)
+      .toList
+    result shouldBe List(Person(Some(4), "josh", 32))
+  }
+
   "unionFlat merges results from multiple traversals" in {
     implicit val graph = TinkerFactory.createModern
     // union of two different person filters
