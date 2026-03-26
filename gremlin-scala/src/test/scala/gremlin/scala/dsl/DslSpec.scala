@@ -257,6 +257,12 @@ class DslSpec extends AnyWordSpec with Matchers {
     result.size shouldBe 0
   }
 
+  "drop removes elements from the graph" in {
+    val graph = TinkerFactory.createModern
+    PersonSteps(graph).hasName("marko").drop().iterate()
+    PersonSteps(graph).hasName("marko").exists() shouldBe false
+  }
+
   "allows to be cloned" in {
     val graph = TinkerFactory.createModern
     def personSteps = PersonSteps(graph)
