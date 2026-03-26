@@ -238,6 +238,12 @@ class DslSpec extends AnyWordSpec with Matchers {
     result shouldBe List("marko")
   }
 
+  "barrier does not change results" in {
+    val withBarrier = PersonSteps(TinkerFactory.createModern).barrier().toSet
+    val withoutBarrier = PersonSteps(TinkerFactory.createModern).toSet
+    withBarrier shouldBe withoutBarrier
+  }
+
   "allows to be cloned" in {
     val graph = TinkerFactory.createModern
     def personSteps = PersonSteps(graph)

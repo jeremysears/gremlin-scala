@@ -126,6 +126,10 @@ class Steps[EndDomain, EndGraph, Labels <: HList](val raw: GremlinScala[EndGraph
     new Steps[EndDomain, EndGraph, Labels](
       raw.is(converter.toGraph(value).asInstanceOf[AnyRef]))
 
+  /** Insert a bulk-synchronization barrier into the traversal. */
+  def barrier(): Steps[EndDomain, EndGraph, Labels] =
+    new Steps[EndDomain, EndGraph, Labels](raw.barrier())
+
   /* access all gremlin-scala methods that don't modify the EndGraph type, e.g. `has` */
   /* TODO: track/use NewLabelsGraph as given by `fun` */
   def onRaw(
