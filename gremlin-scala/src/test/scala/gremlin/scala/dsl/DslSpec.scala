@@ -273,6 +273,17 @@ class DslSpec extends AnyWordSpec with Matchers {
     result.size should be > 0
   }
 
+  "local executes traversal in local scope" in {
+    implicit val graph = TinkerFactory.createModern
+    // local limit(1) on created gives at most 1 software per person
+    val result = PersonSteps(graph)
+      .local(_.created.limit(1))
+      .toList
+    // each person gets at most 1 created software locally
+    result.size should be <= 4
+    result.size should be > 0
+  }
+
   "unfold unrolls folded results" in {
     val graph = TinkerFactory.createModern
     // fold names into a list, then unfold back

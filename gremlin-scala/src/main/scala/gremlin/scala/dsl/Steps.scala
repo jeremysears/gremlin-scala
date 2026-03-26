@@ -161,6 +161,23 @@ class Steps[EndDomain, EndGraph, Labels <: HList](val raw: GremlinScala[EndGraph
       raw.coalesce[NewEndGraph](rawTraversals: _*))
   }
 
+  /**
+    * Execute the provided traversal in local scope.
+    * Operations within local scope apply per-element rather than across the full traversal.
+    */
+  def local[NewEndDomain, NewEndGraph](
+      localTraversal: Steps[EndDomain, EndGraph, HNil] => Steps[NewEndDomain, NewEndGraph, _])(
+      implicit
+      newConverter: Converter.Aux[NewEndDomain, NewEndGraph],
+      ev: EndGraph <:< Element)
+    : Steps[NewEndDomain, NewEndGraph, Labels] = {
+    val rawTraversal = (rawGs: GremlinScala.Aux[EndGraph, HNil]) =>
+      localTraversal(new Steps[EndDomain, EndGraph, HNil](rawGs))
+        .raw.asInstanceOf[GremlinScala[NewEndGraph]]
+    new Steps[NewEndDomain, NewEndGraph, Labels](
+      raw.local[NewEndGraph](rawTraversal))
+  }
+
   /** Unroll a collection or iterator into individual traversers. */
   def unfold[NewEndDomain, NewEndGraph]()(
       implicit newConverter: Converter.Aux[NewEndDomain, NewEndGraph])
