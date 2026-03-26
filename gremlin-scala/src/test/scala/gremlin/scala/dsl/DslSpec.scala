@@ -221,6 +221,14 @@ class DslSpec extends AnyWordSpec with Matchers {
     result shouldBe List(Person(Some(1), "marko", 29))
   }
 
+  "hasLabel filters by element label" in {
+    val graph = TinkerFactory.createModern
+    val result = new Steps[Vertex, Vertex, HNil](graph.V)(Converter.identityConverter)
+      .hasLabel("software")
+      .toList
+    result.size shouldBe 2
+  }
+
   "allows to be cloned" in {
     val graph = TinkerFactory.createModern
     def personSteps = PersonSteps(graph)
