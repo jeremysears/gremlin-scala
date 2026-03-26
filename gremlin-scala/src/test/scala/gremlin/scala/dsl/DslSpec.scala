@@ -183,6 +183,22 @@ class DslSpec extends AnyWordSpec with Matchers {
     }
   }
 
+  "exists returns true when traversal has results" in {
+    PersonSteps(TinkerFactory.createModern).exists() shouldBe true
+  }
+
+  "exists returns false when traversal has no results" in {
+    PersonSteps(TinkerFactory.createModern).hasName("nonexistent").exists() shouldBe false
+  }
+
+  "notExists returns true when traversal has no results" in {
+    PersonSteps(TinkerFactory.createModern).hasName("nonexistent").notExists() shouldBe true
+  }
+
+  "notExists returns false when traversal has results" in {
+    PersonSteps(TinkerFactory.createModern).notExists() shouldBe false
+  }
+
   "allows to be cloned" in {
     val graph = TinkerFactory.createModern
     def personSteps = PersonSteps(graph)

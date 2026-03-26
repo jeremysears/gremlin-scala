@@ -74,6 +74,12 @@ class Steps[EndDomain, EndGraph, Labels <: HList](val raw: GremlinScala[EndGraph
   def count(): Long =
     raw.count().head()
 
+  /** Returns true if the traversal contains at least one element. */
+  def exists(): Boolean = headOption().isDefined
+
+  /** Returns true if the traversal contains no elements. */
+  def notExists(): Boolean = !exists()
+
   override def clone() = new Steps[EndDomain, EndGraph, Labels](raw.clone())
 
   def dedup(): Steps[EndDomain, EndGraph, Labels] =
