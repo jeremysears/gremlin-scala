@@ -162,6 +162,24 @@ class Steps[EndDomain, EndGraph, Labels <: HList](val raw: GremlinScala[EndGraph
   }
 
   /**
+    * Merge the results of multiple traversals into a single flat result set.
+    * All traversals must produce the same output type.
+    */
+  def unionFlat[NewEndDomain, NewEndGraph](
+      unionTraversals: (Steps[EndDomain, EndGraph, HNil] => Steps[NewEndDomain, NewEndGraph, _])*)(
+      implicit newConverter: Converter.Aux[NewEndDomain, NewEndGraph])
+    : Steps[NewEndDomain, NewEndGraph, Labels] = {
+    val rawTraversals = unionTraversals.map { unionTraversal =>
+      (rawTraversal: GremlinScala.Aux[EndGraph, HNil]) =>
+        unionTraversal(
+          new Steps[EndDomain, EndGraph, HNil](rawTraversal)
+        ).raw.asInstanceOf[GremlinScala[NewEndGraph]]
+    }
+    new Steps[NewEndDomain, NewEndGraph, Labels](
+      raw.unionFlat[NewEndGraph](rawTraversals: _*))
+  }
+
+  /**
     * Execute the provided traversal in local scope.
     * Operations within local scope apply per-element rather than across the full traversal.
     */

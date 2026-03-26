@@ -273,6 +273,21 @@ class DslSpec extends AnyWordSpec with Matchers {
     result.size should be > 0
   }
 
+  "unionFlat merges results from multiple traversals" in {
+    implicit val graph = TinkerFactory.createModern
+    // union of two different person filters
+    val result = PersonSteps(graph)
+      .unionFlat(
+        _.hasName("marko"),
+        _.hasName("josh")
+      )
+      .toSet
+    result shouldBe Set(
+      Person(Some(1), "marko", 29),
+      Person(Some(4), "josh", 32)
+    )
+  }
+
   "local executes traversal in local scope" in {
     implicit val graph = TinkerFactory.createModern
     // local limit(1) on created gives at most 1 software per person
