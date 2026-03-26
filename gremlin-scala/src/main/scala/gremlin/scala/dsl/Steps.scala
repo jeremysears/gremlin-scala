@@ -130,6 +130,10 @@ class Steps[EndDomain, EndGraph, Labels <: HList](val raw: GremlinScala[EndGraph
   def barrier(): Steps[EndDomain, EndGraph, Labels] =
     new Steps[EndDomain, EndGraph, Labels](raw.barrier())
 
+  /** Filter out traversers that have visited the same element more than once (cyclic paths). */
+  def simplePath(): Steps[EndDomain, EndGraph, Labels] =
+    new Steps[EndDomain, EndGraph, Labels](raw.simplePath())
+
   /* access all gremlin-scala methods that don't modify the EndGraph type, e.g. `has` */
   /* TODO: track/use NewLabelsGraph as given by `fun` */
   def onRaw(

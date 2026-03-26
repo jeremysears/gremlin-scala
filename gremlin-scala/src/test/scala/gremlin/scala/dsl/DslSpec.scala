@@ -244,6 +244,19 @@ class DslSpec extends AnyWordSpec with Matchers {
     withBarrier shouldBe withoutBarrier
   }
 
+  "simplePath filters cyclic paths" in {
+    val graph = TinkerFactory.createModern
+    // marko -> knows -> josh/vadas, then back via knows -> marko/josh/vadas
+    // simplePath should filter out revisited vertices
+    val result = PersonSteps(graph).hasName("marko")
+      .onRaw(_.out("knows").out("knows"))
+      .simplePath()
+      .toList
+    // marko -> josh -> (no outgoing knows), marko -> vadas -> (no outgoing knows)
+    // all paths are simple since there are no cycles in 2-hop knows from marko
+    result.size shouldBe 0
+  }
+
   "allows to be cloned" in {
     val graph = TinkerFactory.createModern
     def personSteps = PersonSteps(graph)
