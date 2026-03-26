@@ -112,6 +112,10 @@ class Steps[EndDomain, EndGraph, Labels <: HList](val raw: GremlinScala[EndGraph
       }
     )
 
+  /** Filter elements by their ID. */
+  def hasId(ids: AnyRef*)(implicit ev: EndGraph <:< Element): Steps[EndDomain, EndGraph, Labels] =
+    new Steps[EndDomain, EndGraph, Labels](raw.hasId(ids: _*))
+
   /* access all gremlin-scala methods that don't modify the EndGraph type, e.g. `has` */
   /* TODO: track/use NewLabelsGraph as given by `fun` */
   def onRaw(

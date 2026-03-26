@@ -216,6 +216,11 @@ class DslSpec extends AnyWordSpec with Matchers {
     result.size shouldBe 3
   }
 
+  "hasId filters by element id" in {
+    val result = PersonSteps(TinkerFactory.createModern).hasId(1: Integer).toList
+    result shouldBe List(Person(Some(1), "marko", 29))
+  }
+
   "allows to be cloned" in {
     val graph = TinkerFactory.createModern
     def personSteps = PersonSteps(graph)
