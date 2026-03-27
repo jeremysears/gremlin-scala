@@ -4,6 +4,7 @@ import gremlin.scala._
 import gremlin.scala.StepLabel.{combineLabelWithValue, GetLabelName}
 import java.util.{Map => JMap}
 import java.util.stream.{Stream => JStream}
+import org.apache.tinkerpop.gremlin.process.traversal.Scope
 import scala.collection.mutable
 import shapeless.{::, HList, HNil}
 import shapeless.ops.hlist.{IsHCons, Mapper, Prepend, RightFolder, ToTraversable, Tupler}
@@ -76,6 +77,14 @@ class Steps[EndDomain, EndGraph, Labels <: HList](val raw: GremlinScala[EndGraph
 
   override def clone() = new Steps[EndDomain, EndGraph, Labels](raw.clone())
 
+  /** Filter to keep the last N elements of the traversal. */
+  def tail(limit: Long): Steps[EndDomain, EndGraph, Labels] =
+    new Steps[EndDomain, EndGraph, Labels](raw.tail(limit))
+
+  /** Filter to keep the last N elements of the traversal within the given scope. */
+  def tail(scope: Scope, limit: Long): Steps[EndDomain, EndGraph, Labels] =
+    new Steps[EndDomain, EndGraph, Labels](raw.tail(scope, limit))
+  
   def dedup(): Steps[EndDomain, EndGraph, Labels] =
     new Steps[EndDomain, EndGraph, Labels](raw.dedup())
 

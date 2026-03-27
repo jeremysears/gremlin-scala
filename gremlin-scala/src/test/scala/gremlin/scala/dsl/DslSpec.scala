@@ -2,6 +2,7 @@ package gremlin.scala.dsl
 
 import gremlin.scala._
 import java.util.{Map => JMap}
+import org.apache.tinkerpop.gremlin.process.traversal.Scope
 import org.apache.tinkerpop.gremlin.tinkergraph.structure.TinkerFactory
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
@@ -181,6 +182,18 @@ class DslSpec extends AnyWordSpec with Matchers {
       val results: List[(String, Set[Software])] = query.toList()
       results.size shouldBe 4
     }
+  }
+
+  "tail(limit) returns last N elements" in {
+    val result = PersonSteps(TinkerFactory.createModern).tail(2).toList
+    result.size shouldBe 2
+  }
+
+  "tail(scope, limit) returns last N elements in given scope" in {
+    val graph = TinkerFactory.createModern
+    // Scope.global behaves the same as the unscoped tail(limit) variant
+    val result = PersonSteps(graph).tail(Scope.global, 2).toList
+    result.size shouldBe 2
   }
 
   "allows to be cloned" in {
